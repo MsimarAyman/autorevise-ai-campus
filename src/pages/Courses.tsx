@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Clock, Users, BookOpen, Filter, Grid, List } from 'lucide-react';
 import { coursesData, Course } from '../data/coursesData';
+import Footer from '@/components/Footer';
 
 const Courses: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -140,8 +141,10 @@ const Courses: React.FC = () => {
           <div className="text-gray-400 text-lg">No courses found matching your criteria</div>
         </div>
       )}
+      <Footer />
     </div>
   );
+
 };
 
 export default Courses;
