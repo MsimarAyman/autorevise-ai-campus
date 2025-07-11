@@ -6,6 +6,167 @@ import { coursesData, mockAIData } from '../data/coursesData';
 
 type ContentType = 'summary' | 'quiz' | 'mindmap' | 'chat';
 
+interface QuizQuestion {
+  id: string | number;
+  question: string;
+  options: string[];
+  correct: number;
+  explanation: string;
+}
+
+const QuizComponent: React.FC<{ questions: QuizQuestion[] }> = ({ questions }) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [key: number]: number }>({});
+  const [showResults, setShowResults] = useState(false);
+
+  const handleAnswerSelect = (questionIndex: number, answerIndex: number) => {
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [questionIndex]: answerIndex
+    }));
+  };
+
+  const calculateScore = () => {
+    let correct = 0;
+    questions.forEach((question, index) => {
+      if (selectedAnswers[index] === question.correct) {
+        correct++;
+      }
+    });
+    return (correct / questions.length) * 100;
+  };
+
+  if (!showResults) {
+    return (
+      <div className="glass-card rounded-2xl p-8">
+        <h3 className="text-2xl font-bold text-white mb-6">🧠 Quiz</h3>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-xl font-semibold text-white">
+              Question {currentQuestionIndex + 1} sur {questions.length}
+            </h4>
+            <div className="text-sm text-gray-400">
+              {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}% complété
+            </div>
+          </div>
+          <div className="w-full bg-gray-700 rounded-full h-2 mb-6">
+            <div 
+              className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h4 className="text-lg font-semibold text-white mb-4">
+            {questions[currentQuestionIndex].question}
+          </h4>
+          <div className="space-y-3">
+            {questions[currentQuestionIndex].options.map((option, optionIndex) => (
+              <label
+                key={optionIndex}
+                className="flex items-center p-4 rounded-lg border border-purple-500/20 hover:border-purple-500/40 cursor-pointer transition-colors"
+              >
+                <input
+                  type="radio"
+                  name={`question-${currentQuestionIndex}`}
+                  value={optionIndex}
+                  checked={selectedAnswers[currentQuestionIndex] === optionIndex}
+                  onChange={() => handleAnswerSelect(currentQuestionIndex, optionIndex)}
+                  className="mr-3"
+                />
+                <span className="text-white">{String.fromCharCode(65 + optionIndex)}. {option}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-between">
+          <button
+            onClick={() => setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1))}
+            disabled={currentQuestionIndex === 0}
+            className="px-4 py-2 rounded-lg border border-purple-500/20 text-gray-400 hover:bg-purple-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Précédent
+          </button>
+          
+          {currentQuestionIndex === questions.length - 1 ? (
+            <button
+              onClick={() => setShowResults(true)}
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Voir les résultats
+            </button>
+          ) : (
+            <button
+              onClick={() => setCurrentQuestionIndex(currentQuestionIndex + 1)}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Suivant
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="glass-card rounded-2xl p-8">
+      <h3 className="text-2xl font-bold text-white mb-6">Résultats du Quiz</h3>
+      <div className="text-center mb-8">
+        <div className="text-4xl font-bold text-purple-400 mb-2">
+          {calculateScore().toFixed(0)}%
+        </div>
+        <p className="text-gray-400">
+          {Object.keys(selectedAnswers).filter(key => 
+            selectedAnswers[parseInt(key)] === questions[parseInt(key)]?.correct
+          ).length} sur {questions.length} bonnes réponses
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        {questions.map((question, index) => (
+          <div key={index} className="border border-purple-500/20 rounded-lg p-4">
+            <h4 className="font-semibold text-white mb-3">{question.question}</h4>
+            <div className="space-y-2">
+              {question.options.map((option, optionIndex) => (
+                <div
+                  key={optionIndex}
+                  className={`p-2 rounded ${
+                    optionIndex === question.correct
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/50'
+                      : selectedAnswers[index] === optionIndex && optionIndex !== question.correct
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/50'
+                      : 'bg-gray-700/50 text-gray-400'
+                  }`}
+                >
+                  {String.fromCharCode(65 + optionIndex)}. {option}
+                  {optionIndex === question.correct && ' ✓'}
+                  {selectedAnswers[index] === optionIndex && optionIndex !== question.correct && ' ✗'}
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-sm text-gray-400 italic">
+              {question.explanation}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={() => {
+          setShowResults(false);
+          setCurrentQuestionIndex(0);
+          setSelectedAnswers({});
+        }}
+        className="mt-6 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+      >
+        Recommencer le quiz
+      </button>
+    </div>
+  );
+};
+
 const SessionDetail: React.FC = () => {
   const { courseId, sessionId } = useParams<{ courseId: string; sessionId: string }>();
   const [activeContent, setActiveContent] = useState<ContentType | null>(null);
@@ -66,37 +227,7 @@ const SessionDetail: React.FC = () => {
       case 'quiz':
         const quizData = mockAIData.quiz[sessionId as keyof typeof mockAIData.quiz];
         return quizData ? (
-          <div className="glass-card rounded-2xl p-8">
-            <h3 className="text-2xl font-bold text-white mb-6">🧠 Quiz</h3>
-            <div className="space-y-6">
-              {quizData.questions.map((question, index) => (
-                <div key={question.id} className="border border-purple-500/20 rounded-lg p-6">
-                  <h4 className="text-lg font-semibold text-white mb-4">
-                    {index + 1}. {question.question}
-                  </h4>
-                  <div className="space-y-2">
-                    {question.options.map((option, optionIndex) => (
-                      <button
-                        key={optionIndex}
-                        className={`w-full text-left p-3 rounded-lg transition-colors ${
-                          optionIndex === question.correct
-                            ? 'bg-green-500/20 border border-green-500/40 text-green-300'
-                            : 'bg-gray-700/50 hover:bg-gray-700 text-gray-300'
-                        }`}
-                      >
-                        {String.fromCharCode(65 + optionIndex)}. {option}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-blue-300 text-sm">
-                      <strong>Explanation:</strong> {question.explanation}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <QuizComponent questions={quizData.questions} />
         ) : (
           <div className="glass-card rounded-2xl p-8 text-center">
             <p className="text-gray-400">Quiz content not available for this session.</p>
