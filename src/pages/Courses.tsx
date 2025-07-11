@@ -141,7 +141,6 @@ const Courses: React.FC = () => {
           <div className="text-gray-400 text-lg">No courses found matching your criteria</div>
         </div>
       )}
-      <Footer />
     </div>
   );
 
