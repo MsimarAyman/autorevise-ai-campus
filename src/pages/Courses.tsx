@@ -27,7 +27,7 @@ const Courses: React.FC = () => {
   };
 
   const CourseCard: React.FC<{ course: Course }> = ({ course }) => (
-    <Link to={`/course/${course.id}`} className="block">
+    <Link to={`/informatique/course/${course.id}`} className="block">
       <div className="glass-card rounded-2xl p-6 course-card group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">

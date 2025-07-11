@@ -202,9 +202,9 @@ const SessionDetail: React.FC = () => {
     <div className="animate-fade-in">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-purple-400 mb-6">
-        <Link to="/" className="hover:text-purple-300 transition-colors">Courses</Link>
+        <Link to="/informatique" className="hover:text-purple-300 transition-colors">Courses</Link>
         <span className="text-gray-500">/</span>
-        <Link to={`/course/${courseId}`} className="hover:text-purple-300 transition-colors">
+        <Link to={`/informatique/course/${courseId}`} className="hover:text-purple-300 transition-colors">
           {course.title}
         </Link>
         <span className="text-gray-500">/</span>

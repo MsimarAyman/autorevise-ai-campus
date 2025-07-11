@@ -98,7 +98,7 @@ const CourseDetail: React.FC = () => {
         {course.sessions.map((session, index) => (
           <Link 
             key={session.id}
-            to={`/course/${courseId}/session/${session.id}`}
+            to={`/informatique/course/${courseId}/session/${session.id}`}
             className="block"
           >
             <div className="glass-card rounded-xl p-6 hover-glow group transition-all duration-300">
